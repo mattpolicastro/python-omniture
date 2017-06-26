@@ -20,7 +20,10 @@ class Value(object):
         return utils.AddressableList(values, name)
 
     def __repr__(self):
-        return "<{title}: {id} in {parent}>".format(**self.__dict__)
+        # Resolves UnicodeEncodeError when element names include Unicode characters. Borrowed from:
+        # https://stackoverflow.com/questions/33699343/convert-every-dictionary-value-to-utf-8-dictionary-comprehension
+        el_dict = {k: unicode(v).encode("utf-8") for k, v in self.__dict__.iteritems()}
+        return "<{title}: {id} in {parent}>".format(**el_dict)
 
     def copy(self):
         value = self.__class__(self.title, self.id, self.parent)
@@ -60,8 +63,8 @@ class Element(Value):
 
         element = self.copy()
         element.properties['search'] = {
-            'type': type, 
-            'keywords': utils.wrap(keywords), 
+            'type': type,
+            'keywords': utils.wrap(keywords),
         }
         return element
 
@@ -73,4 +76,3 @@ class Element(Value):
 
 class Segment(Element):
     pass
-
